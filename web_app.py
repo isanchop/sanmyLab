@@ -21,12 +21,13 @@ with gr.Blocks() as demo:
     warning = gr.Dataframe(value=["0","0","0","0","0","0","0","0","0","0","0"], visible=False, type='numpy' , datatype='number')
     proceed_usr = gr.Checkbox(value=False, visible=False)
     with gr.Row() as row1:
-        with gr.Column():
+        with gr.Column(scale=6):
             batchid = gr.Number(label="Lote")
             get_batch = gr.Button(value="Ir")
             with gr.Column(visible=False) as col1:
                 with gr.Row():
                     time = gr.Textbox(value=datetime.now().strftime("%H:%M"), label="Hora", interactive=True)
+                    day = gr.Textbox(value=datetime.now().strftime("%d/%m/%Y"), label="Fecha", interactive=True)
                     brand = gr.Dropdown(batch_dataframe.value['data'][5], label="Marca", interactive=True)
                     frmt = gr.Dropdown(batch_dataframe.value['data'][4], label="Formato", interactive=True)
                 with gr.Row():
@@ -47,22 +48,22 @@ with gr.Blocks() as demo:
                     submit = gr.Button(value="Enviar")
                     reset = gr.Button(value="Reset")
                 
-        with gr.Column():
+        with gr.Column(scale=4):
             with gr.Row():
                 formula = gr.Markdown("formula "+batch_dataframe.value['data'][2][0])
                 location = gr.Markdown("Location "+str(batch_dataframe.value['data'][3][0]))
             with gr.Row():
-                warning_markdown = gr.Markdown("Warning", visible=False)
+                warning_markdown = gr.Markdown("Warning", visible=False, elem_id="warning")
     
 
     get_batch.click(load_batch, 
                     inputs=[batchid], 
-                    outputs=[col1, time, brand, frmt, formula, location, warning_markdown, batch_dataframe, proceed_usr])
+                    outputs=[col1, time, day, brand, frmt, formula, location, warning_markdown, batch_dataframe, proceed_usr])
     submit.click(post_data, 
-                    inputs=[batch_dataframe, time, frmt, brand, vol, par, pres, temp, ph, special, sense, uv, etq, observations, proceed_usr], 
+                    inputs=[batch_dataframe, time, day, frmt, brand, vol, par, pres, temp, ph, special, sense, uv, etq, observations, proceed_usr], 
                     outputs=[col1, warning_markdown, proceed_usr])
     reset.click(reset_values, 
-                inputs=[time, frmt, vol, par, pres, temp, ph, special, sense, uv, etq, observations],
-                outputs=[time, frmt, vol, par, pres, temp, ph, special, sense, uv, etq, observations, proceed_usr])
+                inputs=[],
+                outputs=[time, day, frmt, vol, par, pres, temp, ph, special, sense, uv, etq, observations, proceed_usr])
 
 demo.launch(debug=True)
