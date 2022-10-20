@@ -19,6 +19,7 @@ df = pd.DataFrame.from_dict(batch, orient='index')
 with gr.Blocks() as demo:
     batch_dataframe = gr.Dataframe(df, visible=False, col_count=1)
     warning = gr.Dataframe(value=["0","0","0","0","0","0","0","0","0","0","0"], visible=False, type='numpy' , datatype='number')
+    proceed_usr = gr.Checkbox(value=False, visible=False)
     with gr.Row() as row1:
         with gr.Column():
             batchid = gr.Number(label="Lote")
@@ -56,12 +57,12 @@ with gr.Blocks() as demo:
 
     get_batch.click(load_batch, 
                     inputs=[batchid], 
-                    outputs=[col1, time, brand, frmt, formula, location, warning_markdown, batch_dataframe])
+                    outputs=[col1, time, brand, frmt, formula, location, warning_markdown, batch_dataframe, proceed_usr])
     submit.click(post_data, 
-                    inputs=[batch_dataframe, time, frmt, brand, vol, par, pres, temp, ph, special, sense, uv, etq, observations], 
-                    outputs=[col1, warning_markdown])
+                    inputs=[batch_dataframe, time, frmt, brand, vol, par, pres, temp, ph, special, sense, uv, etq, observations, proceed_usr], 
+                    outputs=[col1, warning_markdown, proceed_usr])
     reset.click(reset_values, 
                 inputs=[time, frmt, vol, par, pres, temp, ph, special, sense, uv, etq, observations],
-                outputs=[time, frmt, vol, par, pres, temp, ph, special, sense, uv, etq, observations])
+                outputs=[time, frmt, vol, par, pres, temp, ph, special, sense, uv, etq, observations, proceed_usr])
 
 demo.launch(debug=True)
