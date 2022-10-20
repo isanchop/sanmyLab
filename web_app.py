@@ -16,7 +16,7 @@ batch = {"_id": 0,              # 0
 df = pd.DataFrame.from_dict(batch, orient='index')
 
 
-with gr.Blocks() as demo:
+with gr.Blocks(css='style.css') as demo:
     batch_dataframe = gr.Dataframe(df, visible=False, col_count=1)
     warning = gr.Dataframe(value=["0","0","0","0","0","0","0","0","0","0","0"], visible=False, type='numpy' , datatype='number')
     proceed_usr = gr.Checkbox(value=False, visible=False)
@@ -50,8 +50,8 @@ with gr.Blocks() as demo:
                 
         with gr.Column(scale=4):
             with gr.Row():
-                formula = gr.Markdown("formula "+batch_dataframe.value['data'][2][0])
-                location = gr.Markdown("Location "+str(batch_dataframe.value['data'][3][0]))
+                formula = gr.Markdown("Formula "+batch_dataframe.value['data'][2][0], elem_id="formula")
+                location = gr.Markdown("Location "+str(batch_dataframe.value['data'][3][0]), elem_id="location")
             with gr.Row():
                 warning_markdown = gr.Markdown("Warning", visible=False, elem_id="warning")
     
@@ -60,10 +60,11 @@ with gr.Blocks() as demo:
                     inputs=[batchid], 
                     outputs=[col1, time, day, brand, frmt, formula, location, warning_markdown, batch_dataframe, proceed_usr])
     submit.click(post_data, 
-                    inputs=[batch_dataframe, time, day, frmt, brand, vol, par, pres, temp, ph, special, sense, uv, etq, observations, proceed_usr], 
-                    outputs=[col1, warning_markdown, proceed_usr])
+                    inputs=[batch_dataframe, time, day, frmt, brand, vol, par, pres, temp, ph, special, sense, uv, etq, observations, proceed_usr, warning], 
+                    outputs=[col1, warning, warning_markdown, proceed_usr])
+    print(warning)
     reset.click(reset_values, 
                 inputs=[],
-                outputs=[time, day, frmt, vol, par, pres, temp, ph, special, sense, uv, etq, observations, proceed_usr])
+                outputs=[time, day, frmt, vol, par, pres, temp, ph, special, sense, uv, etq, observations, proceed_usr, warning_markdown])
 
 demo.launch(debug=True)

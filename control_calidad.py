@@ -13,7 +13,7 @@ def load_batch(id):
         if data == None:
             return gr.Column.update(visible=False), gr.Textbox.update(value=datetime.now().strftime("%H:%M")), gr.Textbox.update(value=datetime.now().strftime("%d/%m/%Y")), None, None, gr.Markdown.update("No existe el lote"), None,gr.Markdown.update("") , None, gr.Checkbox.update(value=False)
         else:
-            return gr.Column.update(visible=True), gr.Textbox.update(value=datetime.now().strftime("%H:%M")), gr.Textbox.update(value=datetime.now().strftime("%d/%m/%Y")), gr.Dropdown.update(choices=data['brands']), gr.Dropdown.update(choices = data['formats']), gr.Markdown.update("Jarabera "+str(data['location'])), gr.Markdown.update("Formula "+data['formula']),gr.Markdown.update("") , gr.Dataframe.update(value=batch_dataframe), gr.Checkbox.update(value=False)
+            return gr.Column.update(visible=True), gr.Textbox.update(value=datetime.now().strftime("%H:%M")), gr.Textbox.update(value=datetime.now().strftime("%d/%m/%Y")), gr.Dropdown.update(choices=data['brands']), gr.Dropdown.update(choices = data['formats']), gr.Markdown.update("Formula "+data['formula']), gr.Markdown.update("Jarabera "+str(data['location'])), gr.Markdown.update("") , gr.Dataframe.update(value=batch_dataframe), gr.Checkbox.update(value=False)
     except:
         print("Error in loading batch")
         return gr.Column.update(visible=False), gr.Textbox.update(value=datetime.now().strftime("%H:%M")), gr.Textbox.update(value=datetime.now().strftime("%d/%m/%Y")), None, None, gr.Markdown.update("No existe el lote"), None,gr.Markdown.update(""), None, gr.Checkbox.update(value=False)
@@ -33,19 +33,22 @@ def reset_values():
     uv = False
     etq = False
     observations = ""
-    return time, day, frmt, vol, par, pres, temp, ph, special, sense, uv, etq, observations, gr.Checkbox.update(value=False)
+    return time, day, frmt, vol, par, pres, temp, ph, special, sense, uv, etq, observations, gr.Checkbox.update(value=False), gr.Markdown.update("", visible=False)
 
 
-def post_data(batch_dataframe, time, day, frmt, brand, vol, par, pres, temp, ph, special, sense, uv, etq, observations, proceed_usr):
+def post_data(batch_dataframe, time, day, frmt, brand, vol, par, pres, temp, ph, special, sense, uv, etq, observations, proceed_usr, warning_prev):
     warning = check_inputs(time, day, frmt, vol, par, pres, temp, ph, special, sense, uv, etq)
-    warning, proceed = check_warning(warning)
+    warning_markdown, proceed = check_warning(warning)
+    warning_prev = array_fix(warning_prev)
+    if warning != warning_prev:
+        proceed_usr = False
     if proceed or (not proceed and proceed_usr): 
         log = create_log(time, day, frmt, brand, vol, par, pres, temp, ph, special, sense, uv, etq, observations)
         batch = load_log(batch_dataframe, log)
-        warning = update_data(batch)
-        return gr.Column.update(visible=False), warning, gr.Checkbox.update(value=False)
+        warning_markdown = update_data(batch)
+        return gr.Column.update(visible=False), warning, warning_markdown, gr.Checkbox.update(value=False)
     else:
-        return gr.Column.update(visible=True), warning, gr.Checkbox.update(value=True)
+        return gr.Column.update(visible=True), warning,  warning_markdown, gr.Checkbox.update(value=True)
 
 
 def check_inputs(time, day, frmt, vol, par, pres, temp, ph, special, sense, uv, etq):
@@ -85,31 +88,31 @@ def check_inputs(time, day, frmt, vol, par, pres, temp, ph, special, sense, uv, 
 def check_warning(warning):
     warning_str = ""
     if warning[0] == "1":
-        warning_str += "Wrong time/day. "
+        warning_str += "<p>Wrong time/day.</p>"
     if warning[1] == "1":
-        warning_str += "No format selected. "
+        warning_str += "<p>No format selected.</p>"
     if warning[2] == "1":
-        warning_str += "Wrong volume. "
+        warning_str += "<p>Wrong volume.</p>"
     if warning[3] == "1":
-        warning_str += "Low Par de cierre. "
+        warning_str += "<p>Low Par de cierre.</p>"
     if warning[4] == "1":
-        warning_str += "Wrong pressure. "
+        warning_str += "<p>Wrong pressure.</p>"
     if warning[5] == "1":
-        warning_str += "Wrong temperature. "
+        warning_str += "<p>Wrong temperature.</p>"
     if warning[6] == "1":
-        warning_str += "Wrong PH. "
+        warning_str += "<p>Wrong PH.</p>"
     if warning[7] == "1":
-        warning_str += "Wrong special. "
+        warning_str += "<p>Wrong special.</p>"
     if warning[8] == "1":
-        warning_str += "Sense not OK. "
+        warning_str += "<p>Sense not OK.</p>"
     if warning[9] == "1":
-        warning_str += "UV not OK. "
+        warning_str += "<p>UV not OK.</p>"
     if warning[10] == "1":
-        warning_str += "Label not OK. "
+        warning_str += "<p>Label not OK.</p>"
     if warning_str == "":
         return gr.Markdown.update("OK", visible=False), True
     else:
-        return gr.Markdown.update(warning_str, visible=True), False
+        return gr.Markdown.update(warning_str, visible=True, elem_id="warning"), False
 
 
 def create_log(time, day, frmt, brand, vol, par, pres, temp, ph, special, sense, uv, etq, observations):
@@ -157,4 +160,11 @@ def update_data(batch):
     db = get_database()
     batches = db['batches']
     batches.update_one({'_id': id}, {'$set': batch})
-    return gr.Markdown.update("Saved!", visible=True)
+    return gr.Markdown.update("Saved!", visible=True, elem_id="saved")
+
+
+def array_fix(array):
+    array_out = []
+    for i in range(len(array)):
+        array_out.append(array[i][0])
+    return array_out
