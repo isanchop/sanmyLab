@@ -37,10 +37,7 @@ def reset_values(time, frmt, vol, par, pres, temp, ph, special, sense, uv, etq, 
 
 def post_data(batch_dataframe, time, frmt, brand, vol, par, pres, temp, ph, special, sense, uv, etq, observations, proceed_usr):
     warning = check_inputs(time, frmt, vol, par, pres, temp, ph, special, sense, uv, etq)
-    print(warning)
-    print(proceed_usr)
     warning, proceed = check_warning(warning)
-    print(proceed, proceed_usr)
     if proceed or (not proceed and proceed_usr): 
         log = create_log(time, frmt, brand, vol, par, pres, temp, ph, special, sense, uv, etq, observations)
         batch = load_log(batch_dataframe, log)
@@ -108,7 +105,7 @@ def check_warning(warning):
     if warning[10] == "1":
         warning_str += "Label not OK. "
     if warning_str == "":
-        gr.Markdown.update("OK", visible=False), True
+        return gr.Markdown.update("OK", visible=False), True
     else:
         return gr.Markdown.update(warning_str, visible=True), False
 
