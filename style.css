@@ -1,0 +1,26 @@
+#warning {
+    font-size: 25px;
+    font-weight: 600;
+    background-image: linear-gradient(to left, #ff3300, #ff0101);
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+}
+
+#formula, #location{
+    font-size: 25px;
+    font-weight: 600;
+    background-image: linear-gradient(to left, #ffffff, #efefef);
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+}
+
+#saved{
+  font-size: 25px;
+  font-weight: 600;
+  background-image: linear-gradient(to left, #58e600, #00d44a);
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+}
