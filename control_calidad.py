@@ -4,6 +4,7 @@ from datetime import datetime
 from database import get_database
 
 
+# Function to load data to interface from database displays the inputs
 def load_batch(id):
     try:
         db = get_database()
@@ -19,6 +20,7 @@ def load_batch(id):
         return gr.Column.update(visible=False), gr.Textbox.update(value=datetime.now().strftime("%H:%M")), gr.Textbox.update(value=datetime.now().strftime("%d/%m/%Y")), None, None, gr.Markdown.update("No existe el lote"), None,gr.Markdown.update(""), None, gr.Checkbox.update(value=False)
 
 
+# Function to reset the interface
 def reset_values():
     time = datetime.now().strftime("%H:%M")
     day = datetime.now().strftime("%d/%m/%Y")
@@ -51,6 +53,7 @@ def post_data(batch_dataframe, time, day, frmt, brand, vol, par, pres, temp, ph,
         return gr.Column.update(visible=True), warning,  warning_markdown, gr.Checkbox.update(value=True)
 
 
+# Function to check inputs are correct returns an array of warnings
 def check_inputs(time, day, frmt, vol, par, pres, temp, ph, special, sense, uv, etq):
     warning = ["0","0","0","0","0","0","0","0","0","0","0"]
     try:
@@ -85,6 +88,7 @@ def check_inputs(time, day, frmt, vol, par, pres, temp, ph, special, sense, uv, 
     return warning
 
 
+# Function to check if there are warnings return a string with the warnings
 def check_warning(warning):
     warning_str = ""
     if warning[0] == "1":
@@ -115,6 +119,7 @@ def check_warning(warning):
         return gr.Markdown.update(warning_str, visible=True, elem_id="warning"), False
 
 
+# Function to create a log from the inputs returns a dictionary
 def create_log(time, day, frmt, brand, vol, par, pres, temp, ph, special, sense, uv, etq, observations):
     log = {
         "time": time,
@@ -135,12 +140,14 @@ def create_log(time, day, frmt, brand, vol, par, pres, temp, ph, special, sense,
     return log
 
 
+# Function that append the log to the batch, returns a dictionary
 def load_log(batch_dataframe, log):
     batch_dataframe[0][7].append(log)
     batch=df_to_dict(batch_dataframe)
     return batch
 
 
+# Function to convert a dataframe to a dictionary
 def df_to_dict(batch_dataframe):
     batch = {
         "_id": batch_dataframe[0][0],
@@ -155,6 +162,7 @@ def df_to_dict(batch_dataframe):
     return batch
 
 
+# Function to upload the new batch to the database
 def update_data(batch):
     id = batch['_id']
     db = get_database()
@@ -163,6 +171,7 @@ def update_data(batch):
     return gr.Markdown.update("Saved!", visible=True, elem_id="saved")
 
 
+# Function that fixes an array of arrays to a single array
 def array_fix(array):
     array_out = []
     for i in range(len(array)):
